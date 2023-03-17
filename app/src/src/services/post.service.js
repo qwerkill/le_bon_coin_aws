@@ -15,7 +15,6 @@ const getPost = async  (id) => {
     const createPost = async (credential) => {
         const headers = { 'Content-Type': 'multipart/form-data' };
         const formData = new FormData();
-        console.log("credential", credential)
         formData.append("title", credential.title);
         formData.append("content", credential.content);
         formData.append("formatted_address",credential.formatted_address)   
@@ -42,17 +41,24 @@ const updatePost = async  (id, data) => {
     return instance.put(`${endPoint}/${id}`, data);
     }
 
-    const deletePost = async  (id) => {
+const deletePost = async  (id) => {
     const response = await instance.delete(`${endPoint}/${id}`);
     return response.data 
-    }
+}
+const searchPosts = async (searchTerm) => {
+    const response = await instance.get(`${endPoint}?search=${searchTerm}`);
+    return response.data;
+  }
+  
+
 
 const PostService = {
     getPosts,
     getPost,
     createPost,
     updatePost,
-    deletePost
+    deletePost,
+    searchPosts
     };
 
 export default PostService;

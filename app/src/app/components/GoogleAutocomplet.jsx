@@ -1,53 +1,61 @@
 import { Box, TextField } from "@mui/material";
-import { useEffect, useState, } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
-const GoogleAutocomplete = ({credential, setCredential}) => {
-
-    const [locationData, setLocationData] = useState({});
-
+const GoogleAutocomplete = ({ credential, setCredential }) => {
+  const [locationData, setLocationData] = useState({});
 
   useEffect(() => {
     const script = document.createElement("script");
     script.src =
-      "https://maps.googleapis.com/maps/api/js?key=&libraries=places";
+      "https://maps.googleapis.com/maps/api/js?key=AIzaSyADYGV5pj9wsxWKV0PMMzhbHJh3W9IOy_c&libraries=places";
     document.body.appendChild(script);
 
-    
     const handleLoad = () => {
-        const autocomplete = new window.google.maps.places.Autocomplete(
-            document.getElementById("outlined-basic"),
-            {
-                types: ["(cities)"],
-                componentRestrictions: { country: "fr" },
-            }
-        );
-        autocomplete.setFields(["address_components", "formatted_address"]);
-        autocomplete.addListener("place_changed", () => {
-            const lat = autocomplete.getPlace().geometry.location.lat();
-            const lng = autocomplete.getPlace().geometry.location.lng();
-            console.log("lat", lat, "lng", lng);
-            let place = autocomplete.getPlace();
-            place.lat = lat;
-            place.lng = lng;
-            setLocationData(place);
+      const autocomplete = new window.google.maps.places.Autocomplete(
+        document.getElementById("outlined-basic"),
+  
+      );
+      autocomplete.setFields(["formatted_address", "address_components", "geometry"]);
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        const formatted_address = place.formatted_address;
+        const addressComponents = place.address_components.reduce((obj, item) => {
+          const types = item.types;
+          if (types.includes("locality")) obj.city = item.long_name;
+          if (types.includes("country")) obj.country = item.long_name;
+          return obj;
+        }, {});
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        setLocationData({ formatted_address, ...addressComponents, lat, lng });
+
+        const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyADYGV5pj9wsxWKV0PMMzhbHJh3W9IOy_c`;
+        axios.get(geocodeUrl).then((response) => {
+          const addressComponents = response.data.results[0].address_components;
+          const postalCodeComponent = addressComponents.find((component) =>
+            component.types.includes("postal_code")
+          );
+          const postal_code = postalCodeComponent ? postalCodeComponent.long_name : "";
+          setLocationData((prevData) => ({ ...prevData, postal_code }));
         });
+      });
     };
     script.addEventListener("load", handleLoad);
-    
+
     return () => {
       script.removeEventListener("load", handleLoad);
     };
-}, []);
+  }, []);
 
-    useEffect(() => {
-        if(locationData) {
-            console.log("google cred", locationData)
-        //     setCredential({
-        //         ...credential,
-        //         ...locationData
-        //     });
-        }
-    }, [locationData]);
+  useEffect(() => {
+    if (locationData) {
+      setCredential({
+        ...credential,
+        ...locationData,
+      });
+    }
+  }, [locationData]);
 
   return (
     <Box
@@ -64,8 +72,7 @@ const GoogleAutocomplete = ({credential, setCredential}) => {
         label="Localisation"
         variant="outlined"
         name="localisation"
-        // onChange={handleChange}
-      />
+        />
     </Box>
   );
 };

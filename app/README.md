@@ -12,16 +12,16 @@ show all images of post
 création d'un post avec un formulaire (avec images). Utilisation du package react-dropzone
 # TODO V4
 # Backend
-ajouter la localisation pour chaque post (adresse, ville, code, postale, lat, lnt)
+~~ajouter la localisation pour chaque post (adresse, ville, code, postale, lat, lnt)~~
 # Frontend
-formater les adresse avec Google Places API
-# TODO V5
-# Frontend
-ajouter un bouton pour afficher un caroussel d'images dans une modal
-# TODO V6
+~~formater les adresse avec Google Places API~~
+~~# TODO V5~~
+~~# Frontend~~
+~~ajouter un bouton pour afficher un caroussel d'images dans une modal~~
+~~# TODO V6~~
 # Frontend
 adapter l'upload des images en fonction du design
-# TODO V7
+~~# TODO V7~~
 # Frontend
 step form
 # TODO V8
